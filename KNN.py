@@ -64,7 +64,7 @@ class KNearestNeighbor:
         num_test = X.shape[0]
         num_train = self.X_train.shape[0]
     
-        # boradcast and vectorization; (x-y)**2 = x**2 - 2xy + y**2
+        # broadcast and vectorization; (x-y)**2 = x**2 - 2xy + y**2
         test_sqr = np.sum(X**2, axis=1).reshape(num_test, 1)
         train_sqr = np.sum(self.X_train**2, axis=1).reshape(1, num_train)
         cross = X.dot(self.X_train.T)
