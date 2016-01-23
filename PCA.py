@@ -14,16 +14,18 @@ import matplotlib.pyplot as plt
 
 def represent(img_file, k):
     """
-    Reresents the img in lower dimensions. 
+    Reresents a grayscale image using fewer components.
     
     :Parameters:
-        img: an image file.
-        k: number of dimensions.
+        img_file: an image file.
+        k: number of components.
         
     :Returns:
         compressed image
     """
-    img= Image.open(img_file)
+    print '\n'
+    
+    img = np.asarray(Image.open(img_file))
     print 'Original image'
     plt.imshow(img)
     plt.show()
@@ -31,10 +33,11 @@ def represent(img_file, k):
     print '\n'
     
     # Using first k component
-    data = np.asarray(img)
-    reconstruct = pca(data, k)
-    print 'Image using the first {0} components'.format(k)
+    reconstruct = pca(img, k)
+    r = k / img.shape[1] * 100    # principle component ratio
+    print 'Represent image using the first {0}% principle components'.format(r)
     plt.imshow(reconstruct)
+    plt.show()
     
     
 def pca(X, k):
@@ -48,6 +51,9 @@ def pca(X, k):
     :Returns:
         Reconstruct matrix using first k eigenvectors.
     """
-    U, D, V_T = la.svd(X)
-    R = V_T.T[:, :k]
-    return R.dot(R.T).dot(X)
+    U, S, VT = la.svd(X)
+    K = U[:, :k]
+    return K.dot(K.T).dot(X)
+
+
+represent('flower.jpg', 25)
