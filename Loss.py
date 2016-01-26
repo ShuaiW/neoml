@@ -83,8 +83,8 @@ def softmax_loss(W, X, y, reg):
 
 
 # gradient check
-svm = lambda w: svm_loss(W, X, y, 1e2)
-grad_check(svm, W)
-
-softmax = lambda w: softmax_loss(W, X, y, 1e2)
-grad_check(softmax, W)
+#svm = lambda w: svm_loss(W, X, y, 1e2)
+#grad_check(svm, W)
+#
+#softmax = lambda w: softmax_loss(W, X, y, 1e2)
+#grad_check(softmax, W)
