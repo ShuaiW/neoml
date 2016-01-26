@@ -5,6 +5,7 @@ Created on Mon Jan 25 22:02:26 2016
 @author: shuaiwang
 """
 import numpy as np
+from Helper import grad_check
 
 
 def svm_loss(W, X, y, reg):
@@ -79,3 +80,11 @@ def softmax_loss(W, X, y, reg):
     dW = X.T.dot(all_softmax) / num_train + reg * W
     
     return loss, dW
+
+
+# gradient check
+svm = lambda w: svm_loss(W, X, y, 1e2)
+grad_check(svm, W)
+
+softmax = lambda w: softmax_loss(W, X, y, 1e2)
+grad_check(softmax, W)
