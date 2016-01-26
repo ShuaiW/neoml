@@ -7,13 +7,13 @@ Created on Fri Nov 27 20:34:47 2015
 
 from __future__ import division
 import numpy as np
-
+from random import randrange
 
 def add_bias(X):
     """
     Takes a matrix of size (M, N), and adds a column of 1's (bias) on the left.
     
-    :Parameters:
+    :Param:
         X: design matrix of size (M, N)
         
     :Returns: 
@@ -24,21 +24,6 @@ def add_bias(X):
     """
     M = X.shape[0]
     return np.c_[ np.ones(M), X ]
-
-
-def regresssion_predict(X, W):
-    """
-    Given some data (without bias), X, and a pre-trained parameter vector, W, 
-    predicts the outcome.
-    
-    :Parameters:
-        X: (M, N) data we want make prediction on
-        W: (N+1,) a pre-trained set of parameters
-        
-    :Returns: 
-        prediction for the data (M, )
-    """
-    return add_bias(X).dot(W)
 
     
 def softmax(X):
@@ -59,3 +44,32 @@ def softmax(X):
         return np.exp(X) / np.sum(np.exp(X))
         
 
+def grad_check(f, w, num_checks=10, h=1e-5):
+    """
+    Samples a few random elements and checks if numerical and 
+    analytical gradient match.
+    
+    :Param:
+        f: a lambda function that takes w returns tuple (loss, dW).
+        W: weights of size (N, K) N-> dimension; K-> number of classes
+    
+    :Return:
+        a matrix of same size as X, where the (M, K)th entry is the 
+        probabilty that example M is classified under class K.
+    """
+    analytic_grad = f(w)[1]         # analytical gradient
+    
+    for i in xrange(num_checks):
+        ix = tuple([randrange(m) for m in w.shape])    # (row, col)
+        
+        oldval = w[ix]
+        w[ix] = oldval + h          # increment by h
+        fxph = f(w)[0]              # evaluate f(w + h)
+        w[ix] = oldval - h          # increment by h
+        fxmh = f(w)[0]              # evaluate f(w - h)
+        w[ix] = oldval              # reset
+
+        grad_numerical = (fxph - fxmh) / (2 * h)
+        grad_analytic = analytic_grad[ix]
+        rel_error = abs(grad_numerical - grad_analytic) / (abs(grad_numerical) + abs(grad_analytic))
+        print 'numerical: %f analytic: %f, relative error: %e' % (grad_numerical, grad_analytic, rel_error)
