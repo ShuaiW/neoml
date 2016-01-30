@@ -9,6 +9,10 @@ from __future__ import division
 import numpy as np
 from random import randrange
 
+
+RELU = lambda x: x * (x>0)
+
+
 def add_bias(X):
     """
     Takes a matrix of size (M, N), and adds a column of 1's (bias) on the left.
