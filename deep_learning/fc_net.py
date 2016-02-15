@@ -67,7 +67,7 @@ class TwoLayerNet(object):
     W2, b2 = self.params['W2'], self.params['b2']
     N = X.shape[0]
     
-    # >>>>>>>>>>>>>>>>>>>> forward pass >>>>>>>>>>>>>>>>>>>>
+    # >>>>>>>>>>>>>>>>> forward >>>>>>>>>>>>>>>>>
     first_out, first_cache = affine_relu_forward(X, W1, b1)
     scores, cache = affine_forward(first_out, W2, b2)
 
@@ -75,22 +75,15 @@ class TwoLayerNet(object):
     if y is None:
       return scores
     
-    # loss 
-    loss, _ = softmax_loss(scores, y)
-    loss += 0.5 * self.reg * (np.sum(W1**2) + np.sum(W2**2))
-    
-    #  <<<<<<<<<<<<<<<<<<<<< back prop <<<<<<<<<<<<<<<<<<<<<
-    dout = np.exp(scores - np.max(scores, axis=1, keepdims=True))
-    dout /= np.sum(dout, axis=1, keepdims=True)
-    dout[np.arange(N), y] -= 1
-    dout /= N
-    
+    # <<<<<<<<<<<<<<<<< backprop <<<<<<<<<<<<<<<<<
+    loss, dout = softmax_loss(scores, y)
     dfirst_out, dW2, db2 = affine_backward(dout, cache)
     dX, dW1, db1 = affine_relu_backward(dfirst_out, first_cache)
     
     # L2 reg
     dW1 += self.reg * W1
     dW2 += self.reg * W2
+    loss += 0.5 * self.reg * (np.sum(W1**2) + np.sum(W2**2))
     
     grads = {}
     grads['W1'], grads['b1'] = dW1, db1
@@ -208,7 +201,7 @@ class FullyConnectedNet(object):
       for bn_param in self.bn_params:
         bn_param[mode] = mode
 
-    # >>>>>>>>>>>>>>>>>>>> forward pass >>>>>>>>>>>>>>>>>>>>    
+    # >>>>>>>>>>>>>>>>> forward >>>>>>>>>>>>>>>>>   
     forward = {}    
     for i in xrange(self.num_layers):
       out, cache = 'out_' + str(i+1), 'cache_' + str(i+1)
@@ -240,18 +233,9 @@ class FullyConnectedNet(object):
     # If test mode return early
     if mode == 'test':
       return scores
-
-    # loss    
-    loss, _ = softmax_loss(scores, y)
-    loss += 0.5 * self.reg * np.sum(np.sum(self.params[W]**2) for 
-        W in self.params if W.startswith('W'))
-
     
-    # <<<<<<<<<<<<<<<<<<<<< back prop <<<<<<<<<<<<<<<<<<<<<
-    dscores = np.exp(scores - np.max(scores, axis=1, keepdims=True))
-    dscores /= np.sum(dscores, axis=1, keepdims=True)
-    dscores[np.arange(N), y] -= 1
-    dscores /= N
+    # <<<<<<<<<<<<<<<<< backprop <<<<<<<<<<<<<<<<<
+    loss, dscores = softmax_loss(scores, y)
     
     grads, grads_out = {}, {}
 
@@ -277,6 +261,8 @@ class FullyConnectedNet(object):
               affine_relu_backward(dout, forward['cache_' + str(i)])
     
     # L2 reg (no reg for scale and shift parameters)
+    loss += 0.5 * self.reg * np.sum(np.sum(self.params[W]**2) for 
+        W in self.params if W.startswith('W'))
     for i in xrange(1, self.num_layers+1):
         grads['W' + str(i)] += self.reg * self.params['W' + str(i)]
 

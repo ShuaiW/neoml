@@ -76,29 +76,22 @@ class ThreeLayerConvNet(object):
     pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
 
 
-    # >>>>>>>>>>>>>>>>>>>> forward pass >>>>>>>>>>>>>>>>>>>>
+    # >>>>>>>>>>>>>>>>> forward >>>>>>>>>>>>>>>>>
     out_1, cache_1 = conv_relu_pool_forward(X, W1, b1, conv_param, pool_param)
     out_2, cache_2 = affine_relu_forward(out_1, W2, b2)
     scores, cache_3 = affine_forward(out_2, W3, b3)
     
     if y is None:
       return scores
-      
-    # loss
-    loss, _ = softmax_loss(scores, y)
-    loss += 0.5 * self.reg * (np.sum(W1**2) + np.sum(W2**2) + np.sum(W3**3))
-    
-    # <<<<<<<<<<<<<<<<<<<<< back prop <<<<<<<<<<<<<<<<<<<<<
-    dout = np.exp(scores - np.max(scores, axis=1, keepdims=True))
-    dout /= np.sum(dout, axis=1, keepdims=True)
-    dout[np.arange(N), y] -= 1
-    dout /= N
-    
+
+    # <<<<<<<<<<<<<<<<< backprop <<<<<<<<<<<<<<<<<
+    loss, dout = softmax_loss(scores, y)
     dout_2, dW3, db3 = affine_backward(dout, cache_3)
     dout_1, dW2, db2 = affine_relu_backward(dout_2, cache_2)
     _, dW1, db1 = conv_relu_pool_backward(dout_1, cache_1)
         
     # L2 reg
+    loss += 0.5 * self.reg * (np.sum(W1**2) + np.sum(W2**2) + np.sum(W3**3))
     dW1 += self.reg * W1
     dW2 += self.reg * W2
     dW3 += self.reg * W3
